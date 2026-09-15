@@ -28,7 +28,6 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Check certificates
-        continue-on-error: true
         id: monitor
         uses: ./.github/actions/ssl-cert-monitor
         with:
