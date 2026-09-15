@@ -1,8 +1,9 @@
 name: Nightly Certificate Check
 
-on:
-  schedule:
-    - cron: '0 0 * * *'
+on: [workflow_dispatch] # after learning swith trigger to this (basically silence the email)
+  # if you are just learning use this trigger instead
+  # schedule:
+  #   - cron: '0 0 * * *'
 
 jobs:
   check-production-domains:
