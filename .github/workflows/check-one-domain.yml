@@ -1,0 +1,24 @@
+name: Check a Single Domain
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Hostname to check'
+        required: true
+        type: string
+      warning-days:
+        description: 'Warning window, in days'
+        required: false
+        type: string
+        default: "30"
+
+jobs:
+  check-domain:
+    uses: ./.github/workflows/check-certs.yml
+    with:
+      domains: ${{ inputs.domain }}
+      warning-days: ${{ inputs.warning-days }}
+    secrets:
+      gmail_username: ${{ secrets.GMAIL_USERNAME }}
+      gmail_app_password: ${{ secrets.GMAIL_APP_PASSWORD }}

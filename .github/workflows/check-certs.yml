@@ -1,0 +1,51 @@
+name: Check Certificates
+
+on:
+  workflow_call:
+    inputs:
+      domains:
+        description: 'Hostnames to check, one per line'
+        required: true
+        type: string
+      warning-days:
+        description: 'Warn when a certificate expires within this many days'
+        required: false
+        type: string
+        default: "30"
+    secrets:
+      gmail_username:
+        description: 'Gmail address to send alerts from'
+        required: true
+      gmail_app_password:
+        description: 'Gmail App Password for that account'
+        required: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Check certificates
+        id: monitor
+        uses: ./.github/actions/ssl-cert-monitor
+        with:
+          domains: ${{ inputs.domains }}
+          warning-days: ${{ inputs.warning-days }}
+
+      - name: Email alert
+        if: failure()
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.gmail_username }}
+          password: ${{ secrets.gmail_app_password }}
+          subject: 'Certificate alert: action needed'
+          to: ${{ secrets.gmail_username }}
+          from: 'SSL Cert Checker <${{ secrets.gmail_username }}>'
+          body: |
+            The certificate check reported: ${{ steps.monitor.outputs.status }}
+            See which host(s) triggered it here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

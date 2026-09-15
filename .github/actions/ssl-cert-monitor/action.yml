@@ -1,0 +1,43 @@
+name: 'SSL Cert Expiry Monitor'
+description: 'Checks TLS certificate expiry for one or more hostnames and reports a coarse status.'
+
+inputs:
+  domains:
+    description: 'Hostnames to check, one per line'
+    required: true
+  warning-days:
+    description: 'Warn when a certificate expires within this many days'
+    required: false
+    default: '30'
+
+outputs:
+  status:
+    description: 'ok, issue, or unreachable — a coarse summary of the check. See the step logs for full per-host detail.'
+    value: ${{ steps.run-check.outputs.status }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.13'
+
+    - name: Run certificate check
+      id: run-check
+      shell: bash
+      run: |
+        set +e
+        echo "${{ inputs.domains }}" | python3 ssl_cert_checker.py --stdin --days ${{ inputs.warning-days }}
+        exit_code=$?
+        set -e
+
+        case $exit_code in
+          0) status=ok ;;
+          1) status=issue ;;
+          2) status=unreachable ;;
+          *) status=unknown ;;
+        esac
+        echo "status=$status" >> "$GITHUB_OUTPUT"
+
+        exit $exit_code

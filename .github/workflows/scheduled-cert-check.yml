@@ -1,0 +1,19 @@
+name: Nightly Certificate Check
+
+on: [workflow_dispatch] # after learning swith trigger to this (basically silence the email)
+  # if you are just learning use this trigger instead
+  # schedule:
+  #   - cron: '0 0 * * *'
+
+jobs:
+  check-production-domains:
+    uses: ./.github/workflows/check-certs.yml
+    with:
+      domains: |
+        example.com
+        api.example.com
+        cdn.example.com
+      warning-days: "21"
+    secrets:
+      gmail_username: ${{ secrets.GMAIL_USERNAME }}
+      gmail_app_password: ${{ secrets.GMAIL_APP_PASSWORD }}
