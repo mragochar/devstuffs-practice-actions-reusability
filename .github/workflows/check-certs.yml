@@ -12,6 +12,13 @@ on:
         required: false
         type: string
         default: "30"
+    secrets:
+      gmail_username:
+        description: 'Gmail address to send alerts from'
+        required: true
+      gmail_app_password:
+        description: 'Gmail App Password for that account'
+        required: true
 
 jobs:
   check:
@@ -28,3 +35,19 @@ jobs:
       - name: Check certificates
         run: |
           echo "${{ inputs.domains }}" | python3 ssl_cert_checker.py --stdin --days ${{ inputs.warning-days }}
+
+      - name: Email alert
+        if: failure()
+        uses: dawidd6/action-send-mail@v17
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.gmail_username }}
+          password: ${{ secrets.gmail_app_password }}
+          subject: 'Certificate alert: action needed'
+          to: ${{ secrets.gmail_username }}
+          from: 'SSL Cert Checker <${{ secrets.gmail_username }}>'
+          body: |
+            The certificate check step exited non-zero for this run.
+            See which host(s) triggered it here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

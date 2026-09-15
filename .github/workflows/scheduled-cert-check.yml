@@ -13,3 +13,6 @@ jobs:
         api.example.com
         cdn.example.com
       warning-days: "21"
+    secrets:
+      gmail_username: ${{ secrets.GMAIL_USERNAME }}
+      gmail_app_password: ${{ secrets.GMAIL_APP_PASSWORD }}
