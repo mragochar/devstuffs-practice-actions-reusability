@@ -1,3 +1,4 @@
+# ruff: noqa
 """Tests for ssl_cert_checker.
 
 Run these from the repo root so Python can find the module:

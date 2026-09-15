@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
+# ruff: noqa
 """ssl-cert-checker
 
 Check the TLS/SSL certificate expiry for one or more hostnames and report
@@ -24,6 +25,7 @@ import json
 import socket
 import ssl
 import sys
+
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 
