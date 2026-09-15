@@ -27,14 +27,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.13"
-
       - name: Check certificates
-        run: |
-          echo "${{ inputs.domains }}" | python3 ssl_cert_checker.py --stdin --days ${{ inputs.warning-days }}
+        id: monitor
+        uses: ./.github/actions/ssl-cert-monitor
+        with:
+          domains: ${{ inputs.domains }}
+          warning-days: ${{ inputs.warning-days }}
 
       - name: Email alert
         if: failure()
@@ -48,6 +46,6 @@ jobs:
           to: ${{ secrets.gmail_username }}
           from: 'SSL Cert Checker <${{ secrets.gmail_username }}>'
           body: |
-            The certificate check step exited non-zero for this run.
+            The certificate check reported: ${{ steps.monitor.outputs.status }}
             See which host(s) triggered it here:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
