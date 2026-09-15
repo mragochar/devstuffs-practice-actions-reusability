@@ -1,0 +1,30 @@
+name: Check Certificates
+
+on:
+  workflow_call:
+    inputs:
+      domains:
+        description: 'Hostnames to check, one per line'
+        required: true
+        type: string
+      warning-days:
+        description: 'Warn when a certificate expires within this many days'
+        required: false
+        type: string
+        default: "30"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+
+      - name: Check certificates
+        run: |
+          echo "${{ inputs.domains }}" | python3 ssl_cert_checker.py --stdin --days ${{ inputs.warning-days }}

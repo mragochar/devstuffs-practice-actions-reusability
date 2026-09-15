@@ -1,0 +1,15 @@
+name: Nightly Certificate Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  check-production-domains:
+    uses: ./.github/workflows/check-certs.yml
+    with:
+      domains: |
+        example.com
+        api.example.com
+        cdn.example.com
+      warning-days: "21"
